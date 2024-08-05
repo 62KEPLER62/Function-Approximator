@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <style>
+        body {
+            background-color: grey;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        canvas {
+            background-color: white;
+            border: 1px solid black;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id="myCanvas" width="600" height="600"></canvas>
+    <script src="network.js"></script>
+    <script>
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+   
+
+        let trainingdata = [];
+        for (let i = 0; i < 100; i++) {
+
+            // let temp = i-(i*i)/100+Math.min(20,i);
+            let temp = Math.sin(i/5)*10+10
+            trainingdata.push([i, temp]);
+        }
+
+        let testingData = [];
+        for (let i = 0; i < 100; i++) {
+            let temp = i;
+            testingData.push([i]);
+        }
+
+
+        // Drawing training data
+        const canvas = document.getElementById('myCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function drawTrainingData(data) {
+ 
+
+            data.forEach(point => {
+                ctx.beginPath();
+                ctx.arc(point[0] * 6, canvas.height - point[1] * 6, 3, 0, Math.PI * 2);
+                ctx.fillStyle = 'blue';
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        function drawNetworkData(data) {
+            let results = [];
+            for(let i=0;i<data.length;i++) {
+                results.push([data[i][0],net.run([data[i]])]);
+            }
+            results.forEach(point => {
+                // console.log(point)
+                ctx.beginPath();
+                ctx.arc(point[0] * 6, canvas.height - point[1] * 6, 3, 0, Math.PI * 2);
+                ctx.fillStyle = 'red';
+                ctx.fill();
+                ctx.closePath();
+            });
+        }
+
+        drawTrainingData(trainingdata);
+
+        // Testing the neural network (these will show up in the console)
+        // console.log(net.run([5]));
+        // console.log(net.run([1]));
+
+
+        // for (let i = 0; i < 400; i++) {
+        //     shuffleArray(trainingdata);
+        //     net.train(trainingdata);
+        //     ctx.clearRect(0, 0, canvas.width, canvas.height);
+        //     drawTrainingData(trainingdata);
+        //     drawNetworkData(testingData);
+        // }
+        let say = 0;
+
+        let net = new NeuralNetwork([1, 10,5,10, 1]);
+
+        let inter = setInterval(()=>{
+            shuffleArray(trainingdata);
+            net.train(trainingdata,0.1);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawTrainingData(trainingdata);
+            drawNetworkData(testingData);
+            say++;
+            if(say==100000){
+                clearInterval(inter);
+            }
+        },1)
+    </script>
+</body>
+
+</html>
